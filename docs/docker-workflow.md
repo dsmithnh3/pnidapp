@@ -172,8 +172,32 @@ docker system prune -af
 If containers fail to start:
 1. Check logs: `docker compose logs`
 2. Verify environment variables in `.env.local` or `.env.production`
-3. Check if ports are already in use: `netstat -tuln`
+3. Check if ports are already in use: `netstat -tuln` or `lsof -i -P | grep LISTEN`
 4. Ensure Supabase is running: `supabase status`
+5. Verify package dependencies are installed: `pnpm install`
+
+### Port Conflicts
+
+Common port conflicts and resolutions:
+1. **Port 5000**: On macOS, AirPlay Receiver uses port 5000 by default
+   - Solution: Either disable AirPlay Receiver in System Preferences -> Sharing
+   - Or modify the service to use a different port like 6123 or 7123
+   
+2. **Port 3000**: May be in use by other Node.js applications
+   - Solution: Use `PORT=3001 pnpm dev` to start on a different port
+
+3. In Docker Compose files, check the port mappings in your configuration:
+   ```yaml
+   ports:
+     - "7123:5000"  # Maps host port 7123 to container port 5000
+   ```
+
+### Environment Variable Issues
+
+If environment variables aren't being correctly passed to containers:
+1. Verify values in your `.env.local` file
+2. For Docker Compose, check if variables are properly referenced in the compose file
+3. Sometimes Docker Compose doesn't expand variables: hardcode critical values or use env_file
 
 ### Health Check Failures
 
@@ -181,6 +205,18 @@ If health checks fail:
 1. Check service-specific logs
 2. Ensure all services can talk to each other
 3. Verify environment variables for connecting services
+4. Check if health endpoints are implemented and responding
+
+### Command Not Found Issues
+
+If you see errors like "command not found":
+1. For Node.js: Ensure dependencies are installed with `pnpm install`
+2. For Python: Set up a virtual environment and install dependencies:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
 ### Performance Issues
 

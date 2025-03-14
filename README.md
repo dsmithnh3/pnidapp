@@ -54,13 +54,18 @@ This project utilizes Supabase and Next.js, along with a Flask server for PDF ex
 3. **Run the services (using individual processes):**
    ```bash
    # Terminal 1: Next.js app
+   pnpm install # First time only to ensure Next.js is installed
    pnpm dev
    
    # Terminal 2: Metadata parser
-   cd companion/metadata-parser && pnpm dev
+   cd companion/metadata-parser && PORT=7123 pnpm dev
    
-   # Terminal 3: PDF export service
-   cd companion/pdf-export && python main.py
+   # Terminal 3: PDF export service (with Python virtual environment)
+   cd companion/pdf-export
+   python3 -m venv venv  # First time only
+   source venv/bin/activate
+   pip install -r requirements.txt  # First time only
+   python main.py  # Will use port 6123 by default
    ```
 
 4. **Alternative: Run with Docker Compose:**
@@ -71,6 +76,8 @@ This project utilizes Supabase and Next.js, along with a Flask server for PDF ex
    # Development with hot reloading
    docker compose -f docker-compose.dev.yml up
    ```
+
+   **Note for macOS users**: If you encounter port conflicts with port 5000 (used by AirPlay Receiver), either disable AirPlay Receiver in System Settings or use the individual process method above with explicit port settings.
 
 5. **Access the application:**
    Open `http://{YOUR_IP_ADDRESS}:3000` in your browser

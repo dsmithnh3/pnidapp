@@ -49,14 +49,27 @@ In separate terminal windows:
 
 ```bash
 # Terminal 1: Run the Next.js app
+pnpm install # First time only - ensure Next.js is installed
 pnpm dev
 
 # Terminal 2: Run the metadata parser
-cd companion/metadata-parser && pnpm dev
+cd companion/metadata-parser && PORT=7123 pnpm dev
 
 # Terminal 3: Run the PDF export service
-cd companion/pdf-export && python main.py
+cd companion/pdf-export
+python3 -m venv venv  # First time only
+source venv/bin/activate
+pip install -r requirements.txt  # First time only
+python main.py  # Will use port 6123 by default
 ```
+
+#### Common Issues and Fixes
+
+1. **Next.js "command not found"**: Run `pnpm install` to ensure Next.js is installed
+2. **Port conflicts**:
+   - Port 5000: On macOS, this is used by AirPlay Receiver. Disable it in System Settings or use explicit ports.
+   - Explicit ports are configured in the commands above (7123 for metadata parser, 6123 for PDF export)
+3. **Python dependencies**: Always use a virtual environment for Python services to avoid system conflicts
 
 #### Option 2: Use Docker with development volumes
 
@@ -64,6 +77,8 @@ cd companion/pdf-export && python main.py
 # Run with hot reloading enabled
 docker compose -f docker-compose.dev.yml up
 ```
+
+If Docker containers fail health checks, see the [Docker Workflow Guide](./docker-workflow.md#troubleshooting) for detailed troubleshooting steps.
 
 ### 5. Code Changes and Standards
 

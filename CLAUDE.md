@@ -7,9 +7,17 @@
   - `./supabase/seed.sh` - Initialize database schema and policies
 
 - **Development**:
+  - Install dependencies (if needed): `pnpm install` - Ensure Next.js is installed
   - Root project: `pnpm dev` - Run Next.js development server (port 3000)
-  - Metadata parser: `cd companion/metadata-parser && pnpm dev` - Run metadata parser (port 7123)
-  - PDF Export: `cd companion/pdf-export && python main.py` - Run PDF export service (port 6123)
+  - Metadata parser: `cd companion/metadata-parser && PORT=7123 pnpm dev` - Run metadata parser explicitly on port 7123
+  - PDF Export:
+    ```bash
+    cd companion/pdf-export
+    python3 -m venv venv  # Create virtual environment (first time only)
+    source venv/bin/activate
+    pip install -r requirements.txt  # First time only
+    python main.py  # Will run on port 6123 by default
+    ```
 
 - **Docker Development**:
   - With hot reloading: `docker compose -f docker-compose.dev.yml up`

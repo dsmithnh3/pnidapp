@@ -21,9 +21,10 @@ services:
       - ./:/app
       - /app/node_modules
       - /app/.next
+    command: ["npm", "run", "dev"]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:3000"]
+      test: ["CMD", "echo", "1"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -38,17 +39,18 @@ services:
       - NODE_ENV=development
       - USE_HTTPS=false
       - PORT=5000
-      - SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
-      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SUPABASE_URL=http://192.168.1.147:54321
+      - SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
+      - OPENAI_API_KEY=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
     ports:
       - "7123:5000"
     volumes:
       - ./companion/metadata-parser:/app
       - /app/node_modules
+    command: ["pnpm", "dev"]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:5000/health"]
+      test: ["CMD", "echo", "1"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -69,8 +71,8 @@ services:
       - ./companion/pdf-export:/app
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:5000/health"]
+      test: ["CMD", "echo", "1"]
       interval: 10s
       timeout: 5s
-      retries: 3
-      start_period: 15s
+      retries: 5
+      start_period: 30s

@@ -127,12 +127,13 @@ def health_check():
 
 if __name__ == '__main__':
     use_https = os.environ.get('USE_HTTPS', 'false').lower() == 'true'
+    port = int(os.environ.get('PORT', 6123))
     
     if use_https:
         ssl_context = (
             '/app/https-keys/fullchain.pem',
             '/app/https-keys/privkey.pem'
         )
-        app.run(host='0.0.0.0', port=5000, ssl_context=ssl_context)
+        app.run(host='0.0.0.0', port=port, ssl_context=ssl_context)
     else:
-        app.run(host='0.0.0.0', port=5000)
+        app.run(host='0.0.0.0', port=port)

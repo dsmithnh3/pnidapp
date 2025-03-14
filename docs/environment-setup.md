@@ -141,14 +141,23 @@ Edit the `.env` file with the same values from your root `.env.local` file:
 
 ```
 USE_HTTPS=false
-PORT=5000
+PORT=7123  # Use 7123 to avoid conflicts
 SUPABASE_URL=http://192.168.1.147:54321
 SUPABASE_SERVICE_KEY=eyJhbGci...
 OPENAI_API_KEY=sk-...
 ```
 
 **PDF Export**: 
-*This service doesn't require a separate .env file for local development.*
+Create a Python virtual environment for isolated dependencies:
+
+```bash
+cd companion/pdf-export
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+*Note: The PDF export service uses port 6123 by default to avoid conflicts with macOS AirPlay service on port 5000.*
 
 ## Running the Application
 
@@ -157,15 +166,21 @@ OPENAI_API_KEY=sk-...
 Run each service in a separate terminal window:
 
 ```bash
-# Terminal 1: Run the Next.js app
+# Terminal 1: Ensure Next.js is installed and run the Next.js app
+cd /path/to/pnidapp
+pnpm install # First time only, to ensure Next.js is installed
 pnpm dev
 
-# Terminal 2: Run the metadata parser
-cd companion/metadata-parser && pnpm dev
+# Terminal 2: Run the metadata parser on port 7123
+cd companion/metadata-parser && PORT=7123 pnpm dev
 
 # Terminal 3: Run the PDF export service
-cd companion/pdf-export && python main.py
+cd companion/pdf-export
+source venv/bin/activate  # Activate virtual environment
+python main.py  # Will use port 6123 by default
 ```
+
+**Important Note for macOS Users**: If you encounter port conflicts with port 5000 (commonly used by AirPlay), you can disable AirPlay Receiver in System Preferences -> Sharing, or explicitly set different ports as shown above.
 
 ### Option 2: Using Docker Compose
 

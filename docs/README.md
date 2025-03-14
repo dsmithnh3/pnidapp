@@ -23,11 +23,14 @@ This directory contains comprehensive documentation for the PNID App project, co
 
 ## Troubleshooting
 
-Each guide includes a dedicated troubleshooting section for common issues. If you encounter problems not covered in these guides, please:
+- [Troubleshooting Guide](./troubleshooting.md) - Comprehensive solutions for common issues
 
-1. Check the relevant guide's troubleshooting section
-2. Review the logs for error messages
-3. Create an issue on GitHub with detailed information about the problem
+Each individual guide also includes a dedicated troubleshooting section for common issues. If you encounter problems not covered in these guides, please:
+
+1. Check the main [Troubleshooting Guide](./troubleshooting.md) first
+2. Review the relevant guide's troubleshooting section
+3. Check logs for error messages
+4. Create an issue on GitHub with detailed information about the problem
 
 ## Contributing to Documentation
 
