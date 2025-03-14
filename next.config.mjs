@@ -13,6 +13,8 @@ const nextConfig = {
     config.resolve.alias.canvas = false;
     return config;
   },
+  // Enable standalone output for Docker
+  output: 'standalone',
 };
 
 export default withSentryConfig(nextConfig, {

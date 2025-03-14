@@ -38,6 +38,10 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Hello, Supabase with TypeScript!');
 });
 
+app.get('/health', (req: Request, res: Response) => {
+  res.status(200).json({ status: 'ok', service: 'metadata-parser' });
+});
+
 app.get('/test-supabase', async (req: Request, res: Response) => {
   try {
     const { data, error } = await supabase.from('files').select('*').limit(1);

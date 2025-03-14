@@ -7,6 +7,8 @@ services:
       args:
         - BUILDPLATFORM=linux/amd64
     env_file: .env.local
+    environment:
+      - NODE_ENV=development
     depends_on:
       metadata-parser:
         condition: service_healthy
@@ -16,8 +18,9 @@ services:
       - "3000:3000"
     volumes:
       # For development: mount source code for hot reloading
-      - ./src:/app/src
-      - ./public:/app/public
+      - ./:/app
+      - /app/node_modules
+      - /app/.next
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--spider", "http://localhost:3000"]
@@ -32,6 +35,7 @@ services:
       dockerfile: Dockerfile
     env_file: .env.local
     environment:
+      - NODE_ENV=development
       - USE_HTTPS=false
       - PORT=5000
       - SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
@@ -40,8 +44,8 @@ services:
     ports:
       - "7123:5000"
     volumes:
-      # For development: mount source code for hot reloading
-      - ./companion/metadata-parser/src:/app/src
+      - ./companion/metadata-parser:/app
+      - /app/node_modules
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--spider", "http://localhost:5000/health"]
@@ -57,10 +61,11 @@ services:
     env_file: .env.local
     environment:
       - PORT=5000
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
     ports:
       - "6123:5000"
     volumes:
-      # For development: mount source code for hot reloading
       - ./companion/pdf-export:/app
     restart: unless-stopped
     healthcheck:

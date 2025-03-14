@@ -121,6 +121,10 @@ def annotate_pdf():
 def test_route():
     return jsonify(message="GET request successful!", status="success")
 
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify(status="ok", service="pdf-export")
+
 if __name__ == '__main__':
     use_https = os.environ.get('USE_HTTPS', 'false').lower() == 'true'
     

@@ -1,21 +1,63 @@
-FROM node:22-alpine
+FROM node:18-alpine AS base
 
+# Install dependencies only when needed
+FROM base AS deps
 WORKDIR /app
 
-RUN npm install -g pnpm
-COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile
+# Install pnpm
+RUN corepack enable
+RUN corepack prepare pnpm@10.6.3 --activate
 
-# Copy the rest of the application code
+# Install dependencies
+COPY package.json ./
+# Add packageManager field to prevent prompts
+RUN node -e "const pkg=require('./package.json'); pkg.packageManager='pnpm@10.6.3'; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2));"
+RUN CI=true pnpm install --ignore-scripts --no-frozen-lockfile
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable
+RUN corepack prepare pnpm@10.6.3 --activate
+
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ENV HOST_IP host.docker.internal
+# Set environment variables
+ENV HOST_IP=host.docker.internal
+ENV NEXT_TELEMETRY_DISABLED 1
 
-# Build the Next.js app
+# Build the application
 RUN pnpm build
 
-# Expose the port the app runs on
+# Production image, copy all the files and run next
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+# Automatically leverage output traces to reduce image size
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
 EXPOSE 3000
 
-# Start the application
-CMD ["pnpm", "start"]
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
+# Start the server using the standalone output
+CMD ["node", "server.js"]

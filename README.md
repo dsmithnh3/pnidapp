@@ -28,7 +28,7 @@ Choose the option that best suits your needs and security requirements.
 
 This project utilizes Supabase and Next.js, along with a Flask server for PDF export and an Express server for AI-assisted metadata parsing. For local development, we use the Supabase CLI to initialize a Supabase instance and can run each service individually or orchestrate them with Docker Compose.
 
-> **For detailed developer instructions**, please refer to [README.developer.md](./README.developer.md) which contains comprehensive setup instructions, troubleshooting tips, and architecture overview.
+> **For detailed instructions**, please refer to our comprehensive documentation in the [docs directory](./docs/README.md) which contains setup guides, development workflows, Docker instructions, and deployment procedures.
 
 #### Prerequisites
 
@@ -65,7 +65,11 @@ This project utilizes Supabase and Next.js, along with a Flask server for PDF ex
 
 4. **Alternative: Run with Docker Compose:**
    ```bash
+   # Standard configuration
    docker compose up --build
+   
+   # Development with hot reloading
+   docker compose -f docker-compose.dev.yml up
    ```
 
 5. **Access the application:**
@@ -81,7 +85,15 @@ This project utilizes Supabase and Next.js, along with a Flask server for PDF ex
 | OPENAI_API_KEY | OpenAI API key for metadata parsing | sk-... |
 | RESEND_API_KEY | Resend API key for emails | re_... |
 
-See [README.developer.md](./README.developer.md) for complete setup instructions and troubleshooting.
+#### Documentation
+
+For comprehensive instructions, refer to our documentation:
+
+- [Environment Setup Guide](./docs/environment-setup.md) - Detailed setup instructions
+- [Development Workflow Guide](./docs/development-workflow.md) - Development best practices
+- [Docker Workflow Guide](./docs/docker-workflow.md) - Docker usage in different environments
+- [Production Deployment Guide](./docs/production-deployment.md) - Deployment instructions
+- [CI/CD Pipeline Guide](./docs/ci-cd-guide.md) - Automated deployment workflow
 
 
 ## Roadmap

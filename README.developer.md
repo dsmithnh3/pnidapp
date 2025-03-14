@@ -103,6 +103,14 @@ If Docker builds fail:
 - Check network connectivity for package downloads
 - Try running individual services directly without Docker
 
+### Environment Variables and Secrets
+For better security:
+- Use `.env.local` for development (never commit this file)
+- Create `.env.example` files showing required variables without actual values
+- In production, use `.env.production` (also never committed)
+- For CI/CD, use GitHub Secrets for all sensitive values
+- Health checks may fail if services can't connect to required resources
+
 ## Development Workflow
 
 1. **Making Changes**
@@ -118,6 +126,31 @@ If Docker builds fail:
 3. **Code Quality**
    - Run `pnpm lint` to check for code style issues
    - Address any TypeScript errors before committing
+
+4. **Docker Development Workflow**
+   - Run with development volumes for hot reloading:
+   ```bash
+   docker compose -f docker-compose.dev.yml up
+   ```
+   
+   - Run production build locally:
+   ```bash
+   docker compose up
+   ```
+   
+   - Run production configuration:
+   ```bash
+   docker compose -f docker-compose.prod.yml up
+   ```
+
+5. **CI/CD Pipeline**
+   - Pushing to main triggers automatic deployment
+   - Pull requests run tests but don't deploy
+   - GitHub Actions pipeline handles:
+     - Testing
+     - Building Docker images
+     - Pushing to Docker Hub
+     - Deploying to production server
 
 ## References
 

@@ -11,6 +11,11 @@
   - Metadata parser: `cd companion/metadata-parser && pnpm dev` - Run metadata parser (port 7123)
   - PDF Export: `cd companion/pdf-export && python main.py` - Run PDF export service (port 6123)
 
+- **Docker Development**:
+  - With hot reloading: `docker compose -f docker-compose.dev.yml up`
+  - Standard configuration: `docker compose up`
+  - Production-like environment: `docker compose -f docker-compose.prod.yml up`
+
 - **Production**:
   - Root project: `pnpm build` - Build for production
   - Root project: `pnpm start` - Start production server
@@ -27,9 +32,25 @@
    - Metadata parser: `cd companion/metadata-parser && pnpm dev`
    - PDF Export: `cd companion/pdf-export && python main.py`
 
+## Container Management
+- **View logs**: `docker compose logs`
+- **View service logs**: `docker compose logs pnid-app`
+- **Access container shell**: `docker compose exec pnid-app sh`
+- **Check container status**: `docker compose ps`
+- **Stop containers**: `docker compose down`
+- **Rebuild containers**: `docker compose up --build`
+
 ## Required API Keys
 - OpenAI API key - For metadata parsing functionality
 - Resend API key - For email functionality (can use dummy for local dev)
+
+## Documentation
+For detailed instructions, refer to the docs directory:
+- [Environment Setup Guide](./docs/environment-setup.md)
+- [Development Workflow Guide](./docs/development-workflow.md)
+- [Docker Workflow Guide](./docs/docker-workflow.md)
+- [Production Deployment Guide](./docs/production-deployment.md)
+- [CI/CD Pipeline Guide](./docs/ci-cd-guide.md)
 
 ## Coding Style Guidelines
 - **TypeScript**: Use strict mode with explicit type annotations
@@ -49,3 +70,5 @@
 - **API Integration**: OpenAI for metadata parsing
 - **State Management**: React Query, Zustand
 - **UI Components**: Radix UI primitives via shadcn/ui
+- **Deployment**: Docker, Docker Compose, GitHub Actions
+- **CI/CD**: GitHub Actions workflow for automated deployment
