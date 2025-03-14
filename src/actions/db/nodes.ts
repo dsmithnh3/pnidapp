@@ -32,7 +32,7 @@ const getPnode = async (docId: string) => {
 }
 
 
-export async function getNodesForFlow(docId: string, mode: 'editor' | 'viewer' = 'editor') {
+export async function getNodesForFlow(docId: string, mode: 'editor' | 'viewer' = 'editor', pageId?: string | null) {
   const supabase = createClient()
   const { data: docData, error: docError } = await supabase.from('files').select('id').eq('short_uid', docId).single()
   if (docError) {
@@ -42,10 +42,21 @@ export async function getNodesForFlow(docId: string, mode: 'editor' | 'viewer' =
       data: []
     }
   }
-  const { data, error } = await supabase.from('nodes')
-        .select('*')
-        .eq('pnid', docData.id)
-        .order('created_at', { ascending: false })
+  
+  // Create query builder
+  let query = supabase.from('nodes')
+    .select('*')
+    .eq('pnid', docData.id)
+  
+  // Filter by page_id if provided
+  if (pageId) {
+    query = query.eq('page_id', pageId)
+  } else {
+    // If no pageId, get nodes without a page (for backward compatibility)
+    query = query.is('page_id', null)
+  }
+  
+  const { data, error } = await query.order('created_at', { ascending: false })
   const pnode = await getPnode(docId)
   if (error) {
     return {

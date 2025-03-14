@@ -1,5 +1,5 @@
 'use client'
-import { MouseEvent, useEffect } from 'react';
+import { MouseEvent } from 'react';
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -12,6 +12,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useEditorStore } from '../store';
+import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { getNodesForFlow } from '@/actions/db/nodes';
@@ -39,14 +40,14 @@ const defaultEdgeOptions: DefaultEdgeOptions = {
 export default function CustomNodeFlow({ docId }: { docId: string }) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const { screenToFlowPosition, fitBounds, fitView} = useReactFlow();
-  const { drawingMode, isDrawing, setIsDrawing, drawStart, setDrawStart, setDrawEnd, drawId, setDrawId, filter, getColor, focusBound  } = useEditorStore();
+  const { drawingMode, isDrawing, setIsDrawing, drawStart, setDrawStart, setDrawEnd, drawId, setDrawId, filter, getColor, focusBound, activePageId } = useEditorStore();
   const [ref, { width, height }] = useMeasure();
   const queryClient = useQueryClient()
   useCopyPaste(docId, queryClient);
 
   useEffect(() => {
     async function getNodes() {
-      const res = await getNodesForFlow(docId)
+      const res = await getNodesForFlow(docId, 'editor', activePageId)
       if (res.success && res.data) {
         const filtered = res.data.filter((node: any) => {
           if (filter !== "All" && node.type === 'shape') {
@@ -60,7 +61,7 @@ export default function CustomNodeFlow({ docId }: { docId: string }) {
       }
     }
     getNodes()
-  }, [filter])
+  }, [filter, activePageId])
 
   useEffect(() => {
     if (focusBound) {
@@ -145,9 +146,27 @@ export default function CustomNodeFlow({ docId }: { docId: string }) {
       const pnid = data.id
       const verified = false
       const equipment_type = filter
-      const res = await db.from('nodes').insert([{ short_uid, pos_x, pos_y, width, height, pnid, verified, shape, color, equipment_type }]).select('*').single()
+      
+      // Include the page_id with the node
+      const nodeData = { 
+        short_uid, 
+        pos_x, 
+        pos_y, 
+        width, 
+        height, 
+        pnid, 
+        verified, 
+        shape, 
+        color, 
+        equipment_type,
+        page_id: activePageId 
+      }
+      
+      const res = await db.from('nodes').insert([nodeData]).select('*').single()
       if (res.status === 201 && res.data) {
-        queryClient.invalidateQueries({ queryKey: ['nodes', docId] })
+        queryClient.invalidateQueries({ 
+          queryKey: ['nodes', docId, activePageId] 
+        })
         return [res.data.id, short_uid]
       } else {
         sentryHelper.logError(res.error)
@@ -246,7 +265,7 @@ export default function CustomNodeFlow({ docId }: { docId: string }) {
         onNodesDelete={(nodes) => {
           async function local_delete(nodeId: string) {
             const res = await deleteNode(nodeId)
-            queryClient.invalidateQueries({ queryKey: ['nodes', docId] })
+            queryClient.invalidateQueries({ queryKey: ['nodes', docId, activePageId] })
           }
           for (const node of nodes) {
             local_delete(node.id)

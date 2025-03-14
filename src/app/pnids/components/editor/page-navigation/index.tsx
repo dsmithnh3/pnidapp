@@ -8,6 +8,7 @@ import { PlusCircle, ArrowLeft, ArrowRight, Settings, Grid } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import PageThumbnail from './page-thumbnail'
 import PageSettings from './page-settings'
+import { useEditorStore } from '../store'
 
 interface PageNavigationProps {
   docId: string
@@ -62,10 +63,22 @@ export default function PageNavigation({ docId, fileId }: PageNavigationProps) {
         } else {
           setPages(newPage)
           setCurrentPage(0)
+          
+          // Set the active page in the store
+          if (newPage && newPage.length > 0) {
+            const { setActivePageId } = useEditorStore.getState()
+            setActivePageId(newPage[0].id)
+          }
         }
       } else {
         setPages(data)
         setCurrentPage(0) // Start with the first page
+        
+        // Set the active page in the store
+        if (data && data.length > 0) {
+          const { setActivePageId } = useEditorStore.getState()
+          setActivePageId(data[0].id)
+        }
       }
       
       setLoading(false)
@@ -99,6 +112,12 @@ export default function PageNavigation({ docId, fileId }: PageNavigationProps) {
   
   const handlePageSelect = (index: number) => {
     setCurrentPage(index)
+    // Get the page ID and update it in the editor store
+    if (pages[index]) {
+      const pageId = pages[index].id
+      const { setActivePageId } = useEditorStore.getState()
+      setActivePageId(pageId)
+    }
   }
   
   const handlePageDelete = async (pageId: string) => {
@@ -156,13 +175,27 @@ export default function PageNavigation({ docId, fileId }: PageNavigationProps) {
   
   const prevPage = () => {
     if (currentPage > 0) {
-      setCurrentPage(currentPage - 1)
+      const newIndex = currentPage - 1
+      setCurrentPage(newIndex)
+      
+      // Set the active page in the store
+      if (pages[newIndex]) {
+        const { setActivePageId } = useEditorStore.getState()
+        setActivePageId(pages[newIndex].id)
+      }
     }
   }
   
   const nextPage = () => {
     if (currentPage < pages.length - 1) {
-      setCurrentPage(currentPage + 1)
+      const newIndex = currentPage + 1
+      setCurrentPage(newIndex)
+      
+      // Set the active page in the store
+      if (pages[newIndex]) {
+        const { setActivePageId } = useEditorStore.getState()
+        setActivePageId(pages[newIndex].id)
+      }
     }
   }
   
