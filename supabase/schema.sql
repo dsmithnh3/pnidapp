@@ -154,6 +154,21 @@ ALTER TABLE ONLY "public"."nodes"
 
 ALTER TABLE ONLY "public"."projects"
     ADD CONSTRAINT "projects_owner_fkey" FOREIGN KEY ("owner") REFERENCES "auth"."users"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+    
+-- Create pages table for multi-page P&ID support
+CREATE TABLE IF NOT EXISTS "public"."pages" (
+    "id" "uuid" DEFAULT extensions.uuid_generate_v4() PRIMARY KEY,
+    "file_id" "uuid" NOT NULL REFERENCES "public"."files"("id") ON DELETE CASCADE,
+    "name" "text" NOT NULL DEFAULT 'Unnamed Page',
+    "page_number" "integer" NOT NULL DEFAULT 1,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
+);
+
+ALTER TABLE "public"."pages" OWNER TO "postgres";
+
+-- Add page_id column to nodes table
+ALTER TABLE "public"."nodes" ADD COLUMN IF NOT EXISTS "page_id" "uuid" REFERENCES "public"."pages"("id") ON DELETE CASCADE;
 
 CREATE POLICY "Enable CRUD for nodes based on auth" ON "public"."nodes" USING ((( SELECT "auth"."uid"() AS "uid") IN ( SELECT "p"."owner"
    FROM ("public"."files" "f"
@@ -197,6 +212,56 @@ ALTER TABLE "public"."files" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."nodes" ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE "public"."projects" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "public"."pages" ENABLE ROW LEVEL SECURITY;
+
+-- Create policy to allow users to select their own pages
+CREATE POLICY "Users can view pages for their files" 
+  ON "public"."pages" 
+  FOR SELECT 
+  USING (
+    EXISTS (
+      SELECT 1 FROM "public"."files" f
+      JOIN "public"."projects" p ON f.project = p.id
+      WHERE f.id = file_id AND p.owner = auth.uid()
+    )
+  );
+
+-- Create policy to allow users to insert pages for their files
+CREATE POLICY "Users can create pages for their files" 
+  ON "public"."pages" 
+  FOR INSERT 
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM "public"."files" f
+      JOIN "public"."projects" p ON f.project = p.id
+      WHERE f.id = file_id AND p.owner = auth.uid()
+    )
+  );
+
+-- Create policy to allow users to update their pages
+CREATE POLICY "Users can update their pages" 
+  ON "public"."pages" 
+  FOR UPDATE 
+  USING (
+    EXISTS (
+      SELECT 1 FROM "public"."files" f
+      JOIN "public"."projects" p ON f.project = p.id
+      WHERE f.id = file_id AND p.owner = auth.uid()
+    )
+  );
+
+-- Create policy to allow users to delete their pages
+CREATE POLICY "Users can delete their pages" 
+  ON "public"."pages" 
+  FOR DELETE 
+  USING (
+    EXISTS (
+      SELECT 1 FROM "public"."files" f
+      JOIN "public"."projects" p ON f.project = p.id
+      WHERE f.id = file_id AND p.owner = auth.uid()
+    )
+  );
 
 ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
 
@@ -243,5 +308,23 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "anon";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "authenticated";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "service_role";
+
+-- Add trigger to update updated_at timestamp
+CREATE OR REPLACE FUNCTION "public"."handle_updated_at"()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_pages_updated_at
+BEFORE UPDATE ON "public"."pages"
+FOR EACH ROW
+EXECUTE FUNCTION "public"."handle_updated_at"();
+
+GRANT ALL ON TABLE "public"."pages" TO "anon";
+GRANT ALL ON TABLE "public"."pages" TO "authenticated";
+GRANT ALL ON TABLE "public"."pages" TO "service_role";
 
 RESET ALL;

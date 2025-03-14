@@ -33,8 +33,8 @@ function DetailTitle({ activeNode, setDetail }: { activeNode: NodeDetailsType, s
 }
 
 export default function Element({ docId }: { docId: string }) {
-  const listContainerRef = useRef<HTMLDivElement>(null);;
-  const { filter } = useEditorStore();
+  const listContainerRef = useRef<HTMLDivElement>(null);
+  const { filter, activeSidebarTab } = useEditorStore();
   const [activeNode, setActiveNode] = useState<NodeDetailsType | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -45,13 +45,18 @@ export default function Element({ docId }: { docId: string }) {
       return () => clearTimeout(timer);
     }
   }, [activeNode]);
+  
+  // Reset active node when tab changes
+  useEffect(() => {
+    setActiveNode(null);
+  }, [activeSidebarTab]);
 
   return (
-    <div className='h-full w-[25%] bg-white dark:bg-black rounded-md border p-0 overflow-hidden max-h-full flex flex-col' ref={listContainerRef}>
+    <div className='h-full w-full p-0 overflow-hidden max-h-full flex flex-col' ref={listContainerRef}>
       {!activeNode && <TitleBar filter={filter} />}
       {activeNode && <DetailTitle setDetail={setActiveNode} activeNode={activeNode} />}
       <Separator />
-      <div className="relative flex-grow overflow-y-scroll overflow-x-hidden">
+      <div className="relative flex-grow overflow-y-auto overflow-x-hidden">
         <div 
           className={`absolute inset-0 w-full h-full transition-transform duration-300 ease-in-out ${
             activeNode ? 'translate-x-[-100%]' : 'translate-x-0'
