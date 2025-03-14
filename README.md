@@ -26,54 +26,62 @@ Choose the option that best suits your needs and security requirements.
 
 ## Self-Hosting / Local Development
 
-This project utilizes Supabase and Next.js, along with a Flask server for PDF export and an Express server for AI-assisted metadata parsing. For local development, we use the Supabase CLI to initialize a Supabase instance and Docker Compose to orchestrate the Next.js, PDF export, and metadata parser servers.
+This project utilizes Supabase and Next.js, along with a Flask server for PDF export and an Express server for AI-assisted metadata parsing. For local development, we use the Supabase CLI to initialize a Supabase instance and can run each service individually or orchestrate them with Docker Compose.
+
+> **For detailed developer instructions**, please refer to [README.developer.md](./README.developer.md) which contains comprehensive setup instructions, troubleshooting tips, and architecture overview.
 
 #### Prerequisites
 
 - Supabase CLI
-- Docker and Docker Compose
-- Node.js and npm
+- Docker and Docker Compose (optional)
+- Node.js and pnpm
+- Python 3.11+ with pip 
 - OpenAI API key (for metadata parsing)
+- Resend API key (can use dummy for local development)
 
-#### Step 1: Initialize Local Supabase Instance
+#### Quick Start Guide
 
-1. Start the Supabase instance:
-   ```
+1. **Start Supabase and initialize schema:**
+   ```bash
    supabase start
-   ```
-2. Note the `API URL`, `anon key`, and `service_role key` provided upon completion.
-3. Populate the database schema, storage buckets, and RLS policies:
-   ```
    ./supabase/seed.sh
    ```
 
-#### Step 2: Configure Next.js Environment Variables
+2. **Configure environment variables:**
+   - Copy `.env.example` to `.env.local`
+   - Set your machine's IP address, Supabase keys, and API keys
 
-1. Determine the external IP address of your host machine:
-   - On Linux/macOS: `ifconfig` or `ip a`
-   - On Windows: `ipconfig`
-2. Rename `.env.example` to `.env.local`.
-3. Update `.env.local` with the following:
-   - Set `NEXT_PUBLIC_EXTERNAL_API` to your external IP address.
-   - Set `NEXT_PUBLIC_SUPABASE_ANON_KEY` to the `anon key` from Step 1.
-   - Set `SUPABASE_SERVICE_KEY` to the `service_role key` from Step 1.
-   - Optionally, customize other variables as needed.
-
-#### Step 3: Configure Metadata Parser Environment Variables
-
-Update the `docker-compose.yml` file with the following:
-
-1. Set `SUPABASE_URL` to `http://{NEXT_PUBLIC_EXTERNAL_IP}:54321`.
-2. Set `SUPABASE_SERVICE_KEY` to the `service_role key` from Step 1.
-3. Set `OPENAI_API_KEY` to your OpenAI API key.
-
-#### Step 4: Launch the Application
-
-1. Build and start the Docker containers:
+3. **Run the services (using individual processes):**
+   ```bash
+   # Terminal 1: Next.js app
+   pnpm dev
+   
+   # Terminal 2: Metadata parser
+   cd companion/metadata-parser && pnpm dev
+   
+   # Terminal 3: PDF export service
+   cd companion/pdf-export && python main.py
    ```
+
+4. **Alternative: Run with Docker Compose:**
+   ```bash
    docker compose up --build
    ```
-2. Access the application at `http://{YOUR_PUBLIC_EXTERNAL_IP}:3000`.
+
+5. **Access the application:**
+   Open `http://{YOUR_IP_ADDRESS}:3000` in your browser
+
+#### Key Environment Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| NEXT_PUBLIC_EXTERNAL_IP | Your machine's IP address | 192.168.1.147 |
+| NEXT_PUBLIC_SUPABASE_ANON_KEY | Supabase anonymous key | eyJhbGci... |
+| SUPABASE_SERVICE_KEY | Supabase service role key | eyJhbGci... |
+| OPENAI_API_KEY | OpenAI API key for metadata parsing | sk-... |
+| RESEND_API_KEY | Resend API key for emails | re_... |
+
+See [README.developer.md](./README.developer.md) for complete setup instructions and troubleshooting.
 
 
 ## Roadmap

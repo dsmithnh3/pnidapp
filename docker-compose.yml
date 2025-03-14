@@ -17,9 +17,9 @@ services:
     environment:
       - USE_HTTPS=false
       - PORT=5000
-      - SUPABASE_URL= # IMPORTANT: Add your Supabase URL here
-      - SUPABASE_SERVICE_KEY= # IMPORTANT: Add your Supabase Service Key here
-      - OPENAI_API_KEY= # IMPORTANT: Add your OpenAI API Key here
+      - SUPABASE_URL=http://192.168.1.147:54321
+      - SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
+      - OPENAI_API_KEY=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
     ports:
       - "7123:5000"
 
