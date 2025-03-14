@@ -88,10 +88,9 @@ export const useNodeList = (docId: string, pageId?: string | null) => {
       // Filter by page_id if provided
       if (pageId) {
         query = query.eq('page_id', pageId)
-      } else {
-        // If no pageId, get nodes without a page (for backward compatibility)
-        query = query.is('page_id', null)
       }
+      // When no page is selected, we don't filter by page_id at all
+      // This ensures backward compatibility with existing nodes that may not have page_id set
       
       const { data, error } = await query.order('created_at', { ascending: false })
       
