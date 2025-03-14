@@ -1,0 +1,54 @@
+# Multi-page Support Implementation Testing Guide
+
+## Initial Layout Changes
+
+The multi-page interface has been significantly redesigned to create a more intuitive user experience:
+
+1. Editor Layout - Now follows a side-by-side pattern:
+   - Left: ReactFlow canvas (main area for PNID viewing/editing)
+   - Right: Combined sidebar with node list on top, page navigation on bottom
+   
+2. Viewer Layout - Streamlined for viewing:
+   - Left: ReactFlow canvas (maximized for viewing)
+   - Right: Compact page navigation sidebar
+
+## Testing Scenarios
+
+### 1. First-time Experience
+- Load a PNID document that has no pages
+- Check that initialization works correctly - should create a default page
+- Add a shape to verify page functionality
+- Check that the node appears on the correct page
+
+### 2. Page Navigation
+- Create 3+ pages via the Add Page button
+- Navigate between pages using arrow buttons
+- Confirm each page shows correct nodes
+- Check that viewport is preserved when switching back to a page
+
+### 3. Page Management
+- Rename a page
+- Delete a page (verify associated nodes are removed)
+- Reorder pages using the up/down buttons
+- Verify the order is preserved after refresh
+
+### 4. Thumbnail View
+- Open thumbnail view using grid button
+- Check compact mode in viewer
+- Check regular mode in editor
+- Verify clicking a thumbnail loads the correct page
+
+### 5. Cross-page Elements
+- Mark an element as cross-page
+- Verify it appears on the export view with special indicator
+
+### 6. Responsive Design
+- Test on different screen sizes
+- Check compact view handles small screens
+- Verify thumbnails adjust based on available space
+
+## Known Limitations
+
+- Thumbnail view doesn't show actual thumbnails yet, just placeholders
+- First-time page creation requires a page refresh for node list to fully update
+- Viewport persistence doesn't work perfectly in some edge cases

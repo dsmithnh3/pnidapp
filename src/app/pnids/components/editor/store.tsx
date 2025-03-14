@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { type XYPosition, type Viewport, type Node, type Rect } from 'reactflow';
 
+export type SidebarTab = 'elements' | 'pages' | 'annotations';
+
 interface EditorState {
   drawingMode: "circle" | "rectangle" | null;
   isDrawing: boolean;
@@ -11,6 +13,8 @@ interface EditorState {
   focusBound: Rect | null;
   defaultViewport: Viewport | null;
   focusViewport: Viewport | null;
+  activeSidebarTab: SidebarTab;
+  activePageId: string | null;
   setDrawingMode: (drawingMode: "circle" | "rectangle" | null) => void;
   setIsDrawing: (isDrawing: boolean) => void;
   setDrawStart: (drawStart: XYPosition | null) => void;
@@ -21,6 +25,8 @@ interface EditorState {
   setFocusBound: (focusBound: Rect | null) => void;
   setDefaultViewport: (defaultViewport: Viewport | null) => void;
   setFocusViewport: (viewport: Viewport) => void;
+  setActiveSidebarTab: (tab: SidebarTab) => void;
+  setActivePageId: (pageId: string | null) => void;
 }
 
 export const useEditorStore = create<EditorState>((set) => ({
@@ -33,6 +39,8 @@ export const useEditorStore = create<EditorState>((set) => ({
   focusBound: null,
   defaultViewport: null,
   focusViewport: null,
+  activeSidebarTab: 'elements',
+  activePageId: null,
   setDrawingMode: (drawingMode: "circle" | "rectangle" | null) => {
     set({ drawingMode });
     if (drawingMode === null) {
@@ -84,6 +92,12 @@ export const useEditorStore = create<EditorState>((set) => ({
   },
   setFocusViewport: (viewport: Viewport) => {
     set({ defaultViewport: viewport });
+  },
+  setActiveSidebarTab: (tab: SidebarTab) => {
+    set({ activeSidebarTab: tab });
+  },
+  setActivePageId: (pageId: string | null) => {
+    set({ activePageId: pageId });
   }
 }));
 

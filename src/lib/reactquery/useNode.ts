@@ -72,18 +72,28 @@ export interface PNIDElementType {
   verified: boolean
 }
 
-export const useNodeList = (docId: string) => {
+export const useNodeList = (docId: string, pageId?: string | null) => {
   return useQuery({
-    queryKey: ['nodes', docId],
+    queryKey: ['nodes', docId, pageId],
     queryFn: async () => {
       const supabase = createClient()
       const { data: docData, error: docError } = await supabase.from('files').select('id').eq('short_uid', docId).single()
       if (docError) { throw docError }
-      const { data, error } = await supabase
-        .from('nodes')
+      
+      // Create query builder
+      let query = supabase.from('nodes')
         .select('*')
         .eq('pnid', docData.id)
-        .order('created_at', { ascending: false })
+      
+      // Filter by page_id if provided
+      if (pageId) {
+        query = query.eq('page_id', pageId)
+      }
+      // When no page is selected, we don't filter by page_id at all
+      // This ensures backward compatibility with existing nodes that may not have page_id set
+      
+      const { data, error } = await query.order('created_at', { ascending: false })
+      
       if (error) throw error
       try {
         return data as PNIDElementType[]

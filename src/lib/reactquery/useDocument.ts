@@ -2,7 +2,7 @@
 import { createClient } from '@/lib/supabase/client';
 import { useQuery } from "@tanstack/react-query"
 
-async function loadFile(docId: string): Promise<{fdata : Blob, ftype : string}> {
+async function loadFile(docId: string): Promise<{fdata : Blob, ftype : string, id: string}> {
   const supabase = createClient()
   const { data, error } = await supabase.from('files')
     .select('*')
@@ -20,7 +20,8 @@ async function loadFile(docId: string): Promise<{fdata : Blob, ftype : string}> 
   }
   return {
     fdata: fdata as Blob,
-    ftype: data.ftype
+    ftype: data.ftype,
+    id: data.id
   }
 }
 

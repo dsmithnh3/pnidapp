@@ -82,8 +82,8 @@ export default function NodeList({ docId, containerRef, setDetail, isHidden }: {
   setDetail: (value: {id: string, name: string, type: string} | null) => void,
   isHidden: boolean
 }) {
-  const { data: nodes } = useNodeList(docId)
-  const { filter, defaultViewport, setFocusViewport, setFocusBound } = useEditorStore();
+  const { activePageId, filter, defaultViewport, setFocusViewport, setFocusBound } = useEditorStore();
+  const { data: nodes } = useNodeList(docId, activePageId)
   const [prevNodes, setPrevNodes] = useState<any[]>([]);
   const [selectedIdx, setSelectedIdx] = useState(-1);
   const queryClient = useQueryClient();
@@ -173,7 +173,7 @@ export default function NodeList({ docId, containerRef, setDetail, isHidden }: {
       return data;
     },
     onSuccess: (data, variable, context) => {
-      queryClient.invalidateQueries({ queryKey: ['nodes', `${docId}`] });
+      queryClient.invalidateQueries({ queryKey: ['nodes', docId, activePageId] });
       queryClient.invalidateQueries({ queryKey: ['node', `${variable.id}`] });
     },
   });
